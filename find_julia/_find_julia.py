@@ -11,6 +11,12 @@ from ._jill_install import get_installed_bin_paths
 
 
 class JuliaResults:
+    """
+    This class stores the results of the search for Julia installations.
+
+    A method `get_julia_executable` can then be used to select the preferred installation from
+    those found.
+    """
 
     def __init__(self):
 
@@ -33,6 +39,20 @@ class JuliaResults:
 
 
     def get_julia_executable(self, order=None):
+        """
+        Return the path to the first Julia executable found by checking locations given
+        by the list `order`. If no executable is found, return `None`.
+
+        Paramters
+        ---------
+        order : list
+           Specification of the preferred locations for finding julia. Defaults to
+           `['env', 'other', 'jill', 'path']`. The meaning of the strings are:
+           `env` -- found at `julia_env_var`
+           `other` -- installations found in `other_julia_installations`
+           `jill` -- jill installation directory. (e.g. `~/packages/julias/` in Linux)
+           `path` -- in the user's `PATH` environment variable
+        """
         if order is None:
             order = ['env', 'other', 'jill', 'path']
 
@@ -48,6 +68,70 @@ class JuliaResults:
 
 
 class FindJulia:
+    """
+    This class searches for a Julia exectuable and optionally installs Julia if none is found.
+
+    Reasonable defaults are chosen if the constructor is called with no arguments.
+
+    The highest-level method is `get_or_install_julia`, which returns the path to a Julia executable,
+    after optionally having installed Julia. If no arguments are given, reasonable defaults are chosen.
+
+    The method `find_julias` searches in various locations and records the results.
+    Among the locations searched is the jill.py installation directory,
+    and a single, preferred jill.py is recorded. The preferred jill.py installed versions
+    are specified in the argument `preferred_julia_versions`.
+
+    The method `find_one_julia` first searches with `find_julias`, then selects and returns
+    the path to a preferred julia among all searched locations.
+
+
+    Parameters
+    ----------
+    preferred_julia_versions : list
+        A list of the preferred jill.py-installed Julia versions with highest preference first.
+        The first of these versions that is found will be recorded as the jill.py-installed julia.
+        A reasonable default is supplied. But, this code must be updated as new minor Julia versions
+        are released. This cannot be done automatically upon importing this module, because it is a slow
+        operation.
+    strict_preferred_julia_versions : bool
+        If `False`, then the first jill.py-installed Julia is returned if none of the preferred versions
+        are found. Otherwise no jill.py version is recorded or returned. Default is `False`.
+    version_to_install : str
+        The Julia version to install if no julia is found. This defaults to the first version in the list
+        `preferred_julia_versions`. The format is that specified by the method `jill.install`.
+    confirm_install : bool
+        If `True`, then prompt the user before installing Julia. Default is `True`.
+    julia_env_var : str
+        An environment variable containing the possible path to a Julia executable. Defaults to `JULIA`. If a file
+        is found at this path, then it is recorded.
+    other_julia_installations : [list, str]
+        A list of paths representing possible installation directories. When searching, only the first of
+        these that is found will be recorded.
+
+
+    Examples
+    --------
+    Find a path to a Julia executable using defaults.
+
+    julia_path = FindJulia().get_or_install_julia()
+
+
+    Use only jill.py-installed julias of version 1.5 or 1.4.
+
+    fj = find_julia.FindJulia(preferred_julia_versions = ['1.5, 1.4'],
+               strict_preferred_julia_versions = True)
+
+    julia_path = fj.get_or_install_julia(order=['jill'])
+
+
+    Specify which jill.py versions are allowed, but allow any. Prefer julia specified by an environment variable
+    before jill.py installation. Also allow julia on the user PATH variable.
+
+    fj = find_julia.FindJulia(preferred_julia_versions = ['1.7, 1.6'],
+               strict_preferred_julia_versions = False)
+
+    julia_path = fj.get_or_install_julia(order=['env', 'jill', 'path'])
+    """
 
     def __init__(self,
                  preferred_julia_versions = None,
@@ -57,7 +141,9 @@ class FindJulia:
                  julia_env_var=None,
                  other_julia_installations=None
                  ):
+        """
 
+        """
         if preferred_julia_versions is None:
             self.preferred_julia_versions = ['1.7', '1.6', '1.5', 'latest']
         else:
@@ -83,6 +169,12 @@ class FindJulia:
 
 
     def get_preferred_bin_path(self):
+        """
+        Return the preferred jill-installed `julia`. The first of the preferred versions
+        to be found is returned. If no preferred version is found, then the first jill-installed
+        version is returned, unless `_strict_preferred_julia_versions` is `True`, in which case,
+        `None` is returned.
+        """
         self.results.jill_julia_bin_paths = get_installed_bin_paths()
         if self.results.jill_julia_bin_paths is None:
             return None
@@ -96,6 +188,10 @@ class FindJulia:
 
 
     def find_julias(self):
+        """
+        Search for Julia exectuables in several locations and store the results of the search in
+        an instance of `JuliaResults`.
+        """
         # Julia executable in environment variable
         if self._julia_env_var:
             self.results.want_julia_env_var = True
@@ -146,6 +242,18 @@ class FindJulia:
 
 
     def find_one_julia(self, order=None):
+        """
+        Search for installed julias in various locations and record the result including
+        at most one jill.py installation and one from the list `other_julia_installations`.
+        Then return one of these paths with preferences specified by `order`.
+
+
+        Parameters
+        ----------
+        order : list
+            Specification of preferred location for the julia executable. See the method
+            `JuliaResults.get_julia_executable`.
+        """
         self.find_julias()
         return self.results.get_julia_executable(order=order)
 

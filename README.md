@@ -2,11 +2,17 @@
 
 This package provides the Python class `FindJulia` for searching for the path to a Julia
 executable or installing Julia if none is found.
+It is meant to be used by other Python projects that need to find a Julia installation.
+But, it may have wider uses.
 
+Several locations are searched for Julia installations, including the default location
+used by [`jill.py`](https://github.com/johnnychen94/jill.py). The locations
+used by [`juliaup`](https://github.com/JuliaLang/juliaup) are not searched, mostly
+because they are not documented anywhere.
 
 ### Examples
 
-#### One
+#### Example 1
 
 ```python
 julia_path = FindJulia().get_or_install_julia()
@@ -17,9 +23,9 @@ locations, in order: The environment variable `JULIA`.
 The standard locations used by the installer `jill.py`.
 In a directory in the user `PATH` environment variable.
 If no Julia exectuable is found, `jill.py` is used to install Julia (after prompting)
-and a path the exectuable is returned.
+and a path to the exectuable is returned.
 
-#### Two
+#### Example 2
 
 ```python
 fj = FindJulia(
@@ -73,13 +79,14 @@ other_julia_installations=None,
     See `jill.py` for the syntax of this version string.
 *  `confirm_install` -- if `True` some questions are asked before installing Julia with jill.py
 *  `julia_env_var` -- an environment variable that may be set to the path to a Julia exectuable.
+    If `None`, then the default value `JULIA` is used.
 *  `other_julia_installations` a string or list of strings specifying paths to Julia installations.
     Note these are not paths to executables. In particular, if `a_path` is an installation path, then
     the executable is expected in `a_path/bin/julia`.
 
 ### Detailed information on search for Julia
 
-To search for Julis installations, do this
+To search for Julia installations, do this
 ```python
 fj = FindJulia()
 fj.find_julias()
