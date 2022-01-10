@@ -232,7 +232,7 @@ class FindJulia:
             answer = True
         if answer:
             self.results.want_jill_install = True
-            jill.install.install_julia(confirm=self._confirm_install, version=self._version_to_install)
+            jill.install.install_julia(confirm=False, version=self._version_to_install)
             path = self.get_preferred_bin_path()
             if path is None:
                 raise FileNotFoundError("jill.py installation of julia failed")
