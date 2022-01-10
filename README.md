@@ -31,7 +31,7 @@ and a path to the exectuable is returned.
 fj = FindJulia(
     preferred_julia_versions = ['1.7', '1.6', '1.5', 'latest'],
     strict_preferred_julia_versions = True,
-    confirm_install = True,
+    confirm_install = False,
     julia_env_var = 'JULIA_EXE',
     other_julia_installations = ['/a/julia/path', '/b/julia/path']
     )
@@ -64,7 +64,7 @@ This currently only works with jill.py installations.
 preferred_julia_versions = ['1.7', '1.6', '1.5', 'latest'],
 strict_preferred_julia_versions = False,
 version_to_install = None,
-confirm_install=True,
+confirm_install=False,
 julia_env_var = None,
 other_julia_installations=None,
 ```
@@ -77,7 +77,7 @@ other_julia_installations=None,
 *  `version_to_install` -- The version requested when installing with `jill.py`. If this is `None`, then the first
     version in `preferred_julia_versions` is used. If the latter is empty, then `latest` is used.
     See `jill.py` for the syntax of this version string.
-*  `confirm_install` -- if `True` some questions are asked before installing Julia with jill.py
+*  `confirm_install` -- if `False` some questions are asked before installing Julia with jill.py
 *  `julia_env_var` -- an environment variable that may be set to the path to a Julia exectuable.
     If `None`, then the default value `JULIA` is used.
 *  `other_julia_installations` a string or list of strings specifying paths to Julia installations.

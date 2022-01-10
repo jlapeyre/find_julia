@@ -100,7 +100,7 @@ class FindJulia:
         The Julia version to install if no julia is found. This defaults to the first version in the list
         `preferred_julia_versions`. The format is that specified by the method `jill.install`.
     confirm_install : bool
-        If `True`, then prompt the user before installing Julia. Default is `True`.
+        If `False`, then prompt the user before installing Julia. Default is `False`.
     julia_env_var : str
         An environment variable containing the possible path to a Julia executable. Defaults to `JULIA`. If a file
         is found at this path, then it is recorded.
@@ -137,7 +137,7 @@ class FindJulia:
                  preferred_julia_versions = None,
                  strict_preferred_julia_versions = False,
                  version_to_install = None,
-                 confirm_install=True,
+                 confirm_install=False,
                  julia_env_var=None,
                  other_julia_installations=None
                  ):
@@ -224,15 +224,15 @@ class FindJulia:
 
 
     def prompt_and_install_jill_julia(self, not_found=False):
-        if self._confirm_install and not_found:
-            sys.stdout.write("No julia executable found.")
-        if self._confirm_install:
+        if (not self._confirm_install) and not_found:
+            sys.stdout.write("No julia executable found. ")
+        if not self._confirm_install:
             answer = jill.utils.query_yes_no(f"Would you like jill.py to download and install Julia version '{self._version_to_install}'?")
         else:
             answer = True
         if answer:
             self.results.want_jill_install = True
-            jill.install.install_julia(confirm=False, version=self._version_to_install)
+            jill.install.install_julia(confirm=True, version=self._version_to_install)
             path = self.get_preferred_bin_path()
             if path is None:
                 raise FileNotFoundError("jill.py installation of julia failed")
