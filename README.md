@@ -5,6 +5,11 @@ executable or installing Julia if none is found.
 It is meant to be used by other Python projects that need to find a Julia installation.
 But, it may have wider uses.
 
+
+`find_julia` is available on pypi; it may be installed via `pip install find_julia`.
+It is meant to be used as a library in other packages.
+
+
 Several locations are searched for Julia installations, including the default location
 used by [`jill.py`](https://github.com/johnnychen94/jill.py). The locations
 used by [`juliaup`](https://github.com/JuliaLang/juliaup) are not searched, mostly
