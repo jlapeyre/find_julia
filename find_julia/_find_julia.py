@@ -184,7 +184,7 @@ class FindJulia:
                 return bin_path
         if self._strict_preferred_julia_versions:
             return None
-        return next(iter(results.jill_julia_bin_paths.values())) # Take the first one
+        return next(iter(self.results.jill_julia_bin_paths.values())) # Take the first one
 
 
     def find_julias(self):
