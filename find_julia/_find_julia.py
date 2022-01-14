@@ -141,9 +141,6 @@ class FindJulia:
                  julia_env_var=None,
                  other_julia_installations=None
                  ):
-        """
-
-        """
         if preferred_julia_versions is None:
             self.preferred_julia_versions = ['1.7', '1.6', '1.5', 'latest']
         else:
