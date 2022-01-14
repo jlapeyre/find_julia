@@ -176,7 +176,7 @@ class FindJulia:
         `None` is returned.
         """
         self.results.jill_julia_bin_paths = get_installed_bin_paths()
-        if self.results.jill_julia_bin_paths is None:
+        if not self.results.jill_julia_bin_paths:
             return None
         for pref in self.preferred_julia_versions:
             bin_path = self.results.jill_julia_bin_paths.get(pref)
