@@ -107,6 +107,12 @@ class FindJulia:
     other_julia_installations : [list, str]
         A list of paths representing possible installation directories. When searching, only the first of
         these that is found will be recorded.
+    post_question_hook: function
+        A callback function to be executed prompting for whether to download and install Julia. This callback is
+        executed only if the question is asked. The callback is executed after the question is asked, but before
+        any action is taken to download or install. If find_julia is part of a larger procedure that requires other
+        interactive input, this parameter may be used to ask all questions at once without intervening, time consuming
+        operations.
 
 
     Examples
@@ -139,7 +145,8 @@ class FindJulia:
                  version_to_install = None,
                  confirm_install=False,
                  julia_env_var=None,
-                 other_julia_installations=None
+                 other_julia_installations=None,
+                 post_question_hook=None,
                  ):
         if preferred_julia_versions is None:
             self.preferred_julia_versions = ['1.7', '1.6', '1.5', 'latest']
@@ -162,6 +169,7 @@ class FindJulia:
             self._other_julia_installations = other_julia_installations
         self._confirm_install = confirm_install
         self._strict_preferred_julia_versions = strict_preferred_julia_versions
+        self._post_question_hook = post_question_hook
         self.results = JuliaResults()
 
 
@@ -225,6 +233,8 @@ class FindJulia:
             sys.stdout.write("No julia executable found. ")
         if not self._confirm_install:
             answer = jill.utils.query_yes_no(f"Would you like jill.py to download and install Julia version '{self._version_to_install}'?")
+            if self._post_question_hook:
+                self._post_question_hook()
         else:
             answer = True
         if answer:

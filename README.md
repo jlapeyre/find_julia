@@ -72,6 +72,7 @@ version_to_install = None,
 confirm_install=False,
 julia_env_var = None,
 other_julia_installations=None,
+post_question_hook=None
 ```
 
 * `preferred_julia_versions` -- a list of preferred julia versions to search for, in order, in the [`jill.py`](https://github.com/johnnychen94/jill.py)
@@ -88,6 +89,12 @@ other_julia_installations=None,
 *  `other_julia_installations` a string or list of strings specifying paths to Julia installations.
     Note these are not paths to executables. In particular, if `a_path` is an installation path, then
     the executable is expected in `a_path/bin/julia`.
+*   `post_question_hook` A callback function to be executed prompting for whether to download and
+    install Julia. This callback is executed only if the question is asked. The callback is executed
+    after the question is asked, but before any action is taken to download or install. If
+    find_julia is part of a larger procedure that requires other interactive input, this parameter
+    may be used to ask all questions at once without intervening, time consuming operations.
+
 
 ### Detailed information on search for Julia
 
