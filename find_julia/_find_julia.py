@@ -7,7 +7,7 @@ import jill.install
 import jill.utils
 
 # There is a PR to put the following in jill.py itself. I just have to finish it.
-from ._jill_install import get_installed_bin_paths
+from .jill_install import get_installed_bin_paths
 
 
 class JuliaResults:
