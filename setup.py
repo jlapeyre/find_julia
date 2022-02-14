@@ -13,7 +13,7 @@ setuptools.setup(
     license = 'MIT',
     packages=setuptools.find_packages(),
     py_modules=["find_julia", ],
-    install_requires=['jill'],
+    install_requires=["jill", "julia_semver"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
