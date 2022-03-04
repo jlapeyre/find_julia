@@ -46,13 +46,17 @@ def _collect_paths(locations):
         if x is None:
             return []
         return x if isinstance(x, list) else [x]
-    if locations['which']:
-        paths_which = _to_semver(julia_version.to_version_path_list(tolist(shutil.which("julia"))))
-        all_paths.append(paths_which)
     # Finding juliaup versions is fast because they are cached in the filesystem.
     if locations['juliaup']:
         paths_juliaup = _to_semver(juliaup.version_path_list())
         all_paths.append(paths_juliaup)
+    if locations['which']:
+        wpath = shutil.which("julia")
+        # Exclude ~/.juliaup/bin/julia . It actually links to julialauncher. This program
+        # is not really julia. Eg, if DEPOT_PATH[1] has been changed, julialauncher will error.
+        if not wpath.find("juliaup") >= 0:
+            paths_which = _to_semver(julia_version.to_version_path_list(tolist(wpath)))
+            all_paths.append(paths_which)
     if locations['jill']:
         paths_jill = _to_semver(_jill.version_path_list())
         all_paths.append(paths_jill)
