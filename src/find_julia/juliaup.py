@@ -52,6 +52,8 @@ def _check_is_juliaup_exectuable(exe):
 def _get_juliaup_config(exe=None):
     if exe is None:
         exe = shutil.which("juliaup")
+    if exe is None:
+        return None
     _check_is_juliaup_locked(exe)
     payload = subprocess.run(
         [exe, "api", "getconfig1"], check=True, capture_output=True, encoding='utf8'
@@ -67,6 +69,8 @@ def version_path_list():
     Each two-tuple is of the form `(version, path)`.
     """
     config = _get_juliaup_config()
+    if config is None:
+        return []
     channels = config["OtherChannels"]
     chlist = []
     for ch in channels:
