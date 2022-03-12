@@ -54,7 +54,7 @@ def _collect_paths(locations):
         wpath = shutil.which("julia")
         # Exclude ~/.juliaup/bin/julia . It actually links to julialauncher. This program
         # is not really julia. Eg, if DEPOT_PATH[1] has been changed, julialauncher will error.
-        if not wpath.find("juliaup") >= 0:
+        if wpath is not None and (not wpath.find("juliaup") >= 0): # juliaup is not in the path name
             paths_which = _to_semver(julia_version.to_version_path_list(tolist(wpath)))
             all_paths.append(paths_which)
     if locations['jill']:
