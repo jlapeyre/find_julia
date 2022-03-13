@@ -7,15 +7,15 @@ import os
 def _is_juliaup_locked(exe=None):
     if exe is None:
         exe = shutil.which("juliaup")
-    process = subprocess.Popen(
+    with subprocess.Popen(
         [exe, "status"], stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, encoding='utf8'
-    )
-    while True:
-        output = process.stderr.readline().strip()
-        if output.startswith("Juliaup configuration"):
-            return True
-        if output == '' and process.poll() is not None:
-            return False
+    ) as process:
+        while True:
+            output = process.stderr.readline().strip()
+            if output.startswith("Juliaup configuration"):
+                return True
+            if output == '' and process.poll() is not None:
+                return False
 
 
 def _check_is_juliaup_locked(exe=None):
@@ -31,12 +31,12 @@ def _is_juliaup_executable(exe):
     """
     if exe is None or not os.path.isfile(exe):
         return False
-    # _check_is_juliaup_locked(exe) asking for version does not lock juliaup
     try:
         words = subprocess.run(
             [exe, '--version'], check=True, capture_output=True, encoding='utf8'
         ).stdout.strip().split()
-    except:
+    except Exception as err:
+        print(err)
         return False
     return len(words) == 2 and words[0] == "Juliaup"
 
@@ -44,8 +44,8 @@ def _is_juliaup_executable(exe):
 def _check_is_juliaup_exectuable(exe):
     if exe is None:
         raise FileNotFoundError("No juliaup executable found")
-    if exe is None or not _is_juliaup_executable(exe):
-        raise Exception(f"File {exe} is not a juliaup exectuable")
+    if not _is_juliaup_executable(exe):
+        raise ValueError(f"File {exe} is not a juliaup exectuable")
     return exe
 
 
@@ -73,6 +73,6 @@ def version_path_list():
         return []
     channels = config["OtherChannels"]
     chlist = []
-    for ch in channels:
-        chlist.append((ch['Version'], ch['File']))
+    for chan in channels:
+        chlist.append((chan['Version'], chan['File']))
     return chlist
