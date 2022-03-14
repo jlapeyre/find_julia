@@ -79,12 +79,12 @@ def _find_version(version_spec=None, check_exe=False, strict=False, env_var=None
     if locations['env']:
         if env_var is None:
             env_var = "JULIA"
-            env_version, env_path = _env_var_julia(env_var)
-            if (env_version is not None and
-                julia_semver.match(version_spec, env_version, strict=strict) and
-                _check_path(env_path, check_exe)
-                ):
-                return (env_version, env_path)
+        env_version, env_path = _env_var_julia(env_var)
+        if (env_version is not None and
+            julia_semver.match(version_spec, env_version, strict=strict) and
+            _check_path(env_path, check_exe)
+            ):
+            return (env_version, env_path)
     jlists = _collect_paths(locations=locations)
     paths = set(itertools.chain.from_iterable(jlists))
     maxv = julia_semver.version("0.0.0")
