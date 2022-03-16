@@ -116,7 +116,7 @@ def _find_version(version_spec=None, check_exe=False, strict=False, env_var=None
     return best
 
 
-def find(version_spec=None, check_exe=False, find_all=False, strict=False, env_var=None,
+def find(version_spec=None, check_exe=False, find_all=False, strict=True, env_var=None,
          no_dist=True):
     """
     Search for and return the path to a Julia executable.
@@ -157,7 +157,7 @@ def find(version_spec=None, check_exe=False, find_all=False, strict=False, env_v
     return path
 
 
-def find_or_install(version_spec=None, check_exe=False, find_all=False, strict=False,
+def find_or_install(version_spec=None, check_exe=False, find_all=False, strict=True,
                     answer_yes=False, post_question_hook=None,
                     env_var=None,
                     no_dist=True
@@ -182,7 +182,8 @@ def find_or_install(version_spec=None, check_exe=False, find_all=False, strict=F
         return path
     util.log(f"No Julia version satisfying spec '{str(version_spec)}' found.")
     install_julia.prompt_and_install(
-        answer_yes=answer_yes, post_question_hook=post_question_hook, version_spec=version_spec)
+        answer_yes=answer_yes, post_question_hook=post_question_hook, version_spec=version_spec,
+        strict=strict)
     # find_all=True !!
     path = find(version_spec=version_spec, check_exe=check_exe, find_all=True, strict=strict)
     return path

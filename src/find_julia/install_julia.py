@@ -21,7 +21,7 @@ def _all_julia_versions():
     return _ALL_JULIA_VERSIONS
 
 
-def _best_version(version_spec=None):
+def _best_version(version_spec=None, strict=False):
     if version_spec is None:
         version_spec = julia_semver.semver_spec("^1")
     if isinstance(version_spec, str): # else assume it is created by semver_spec
@@ -30,7 +30,7 @@ def _best_version(version_spec=None):
     maxv = julia_semver.version("0.0.0")
     for version in version_info.keys():
         vers = julia_semver.version(version)
-        if julia_semver.match(version_spec, vers) and vers > maxv:
+        if julia_semver.match(version_spec, vers, strict=strict) and vers > maxv:
             maxv = vers
     if maxv == julia_semver.version("0.0.0"):
         raise Exception(f"No julia version satisfying '{str(version_spec)}' available for download.")
@@ -42,7 +42,8 @@ def _best_version(version_spec=None):
 
 # What should this return ?
 def prompt_and_install(
-        version_spec=None, answer_yes=False, install_func=None, post_question_hook=None
+        version_spec=None, answer_yes=False, install_func=None, post_question_hook=None,
+        strict=False,
 ):
     """
     Download and install julia, optionally prompting, and running a hook after prompting.
@@ -58,7 +59,7 @@ def prompt_and_install(
     """
     if version_spec is None:
         version_spec = "^1"
-    version = str(_best_version(version_spec=version_spec))
+    version = str(_best_version(version_spec=version_spec, strict=strict))
     if not answer_yes:
         answer = util.query_yes_no(
             f"Would you like to download and install Julia version '{version}'?"
