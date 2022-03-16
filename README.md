@@ -40,7 +40,7 @@ Out[2]: '/usr/bin/julia'
 
 ### Function `find`
 
-`find(version_spec=None, check_exe=False, find_all=False, strict=False, env_var=None)`
+`find(version_spec=None, check_exe=False, find_all=False, strict=False, env_var=None, no_dist=True)`
 
 Calling `find()` will use reasonable defaults.
 
@@ -57,6 +57,8 @@ Calling `find()` will use reasonable defaults.
 -  `find_all` : If `False` skip the locations that are slower to search. If no other exectuables
         are found, the slower locations may be searched anyway. The only slow location is the
         jill-installed location.
+-  `no_dist` : bool If `True` exclude julia installed from linux distribution packages. These
+        are usually broken. Default `True`. This looks in `/usr/bin/julia` and `/usr/sbin/julia`.
 
 
 ### Function `find_or_install`
@@ -64,7 +66,7 @@ Calling `find()` will use reasonable defaults.
 ```
 find_or_install(version_spec=None, check_exe=False, find_all=False, strict=False,
                     answer_yes=False, post_question_hook=None,
-                    env_var=None)
+                    env_var=None, no_dist=True)
 ```
 
 Calling `find_or_install()` will use reasonable defaults.
@@ -77,4 +79,3 @@ This function takes all the same parameters as does `find` as well as the follow
 -  `post_question_hook` -  a function to run if and after the consumer is asked whether
         to install Julia. This can be used to ask and record more questions rather
         than waiting till after the download. Default: None
-

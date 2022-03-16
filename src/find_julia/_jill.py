@@ -86,7 +86,7 @@ def version_path_list(install_root_dir=None):
     return to_version_path_list(paths)
 
 
-def install_from_jill(answer_yes=False, version=None):
+def install_from_jill(answer_yes=False, version=None, unstable=False):
     """
     Use jill.py to install Julia.
 
@@ -94,8 +94,9 @@ def install_from_jill(answer_yes=False, version=None):
     answer_yes : If `True` ask no questions, assuming answers are "yes".
     version str : The Julia version to install. If `None`, then the latest
        stable release is installed. Default: None
+    unstable bool : If `True` allow installing unstable (pre-release) versions.
     """
     import jill.install
-    result = jill.install.install_julia(confirm=answer_yes, version=version)
+    result = jill.install.install_julia(confirm=answer_yes, version=version, unstable=unstable)
     print(f"Install from jill returned '{result}'.") # Return val is complicted, not documented.
     return result

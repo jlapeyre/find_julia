@@ -40,7 +40,7 @@ def _to_semver(versions_paths):
 def _default_locations(default=True):
     return {'jill': default, 'juliaup': default, 'which': default, 'env': default}
 
-def _collect_paths(locations):
+def _collect_paths(locations, no_dist=True):
     all_paths = []
     # Finding juliaup versions is fast because they are cached in the filesystem.
     if locations['juliaup']:
@@ -48,9 +48,11 @@ def _collect_paths(locations):
         all_paths.append(paths_juliaup)
     if locations['which']:
         wpath = shutil.which("julia")
+        if no_dist and _is_linux_dist_julia(wpath):
+            print(f"Excluding julia found on PATH: {wpath}. Distribution-installations are usually broken.")
         # Exclude ~/.juliaup/bin/julia . It actually links to julialauncher. This program
         # is not really julia. Eg, if DEPOT_PATH[1] has been changed, julialauncher will error.
-        if wpath is not None and wpath.find("juliaup") < 0: # juliaup is not in the path name
+        elif wpath is not None and wpath.find("juliaup") < 0: # juliaup is not in the path name
             paths_which = _to_semver(julia_version.to_version_path_list([wpath]))
             all_paths.append(paths_which)
     if locations['jill']:
@@ -69,7 +71,22 @@ def _env_var_julia(var_name):
     return version, path
 
 
-def _find_version(version_spec=None, check_exe=False, strict=False, env_var=None, locations=None):
+_LINUX_DIST_JULIA = os.path.join(os.sep, "usr", "bin", "julia")
+_LINUX_DIST_SBIN_JULIA = os.path.join(os.sep, "usr", "sbin", "julia")
+
+def _is_linux_dist_julia(julia_path):
+    if julia_path is None:
+        return False
+    rjulia_path = os.path.realpath(julia_path)
+    return (julia_path == _LINUX_DIST_JULIA
+            or rjulia_path == _LINUX_DIST_JULIA
+            or julia_path == _LINUX_DIST_SBIN_JULIA
+            or rjulia_path == _LINUX_DIST_SBIN_JULIA
+            )
+
+
+def _find_version(version_spec=None, check_exe=False, strict=False, env_var=None, locations=None,
+                  no_dist=True):
     if version_spec is None:
         version_spec = julia_semver.semver_spec("^1")
     elif isinstance(version_spec, str):
@@ -80,12 +97,14 @@ def _find_version(version_spec=None, check_exe=False, strict=False, env_var=None
         if env_var is None:
             env_var = "JULIA"
         env_version, env_path = _env_var_julia(env_var)
-        if (env_version is not None and
-            julia_semver.match(version_spec, env_version, strict=strict) and
-            _check_path(env_path, check_exe)
-            ):
+        if _is_linux_dist_julia(env_path) and no_dist:
+            print(f"Excluding julia in environment variable {env_var}, set to {env_path}. Distribution-installations are usually broken.")
+        elif (env_version is not None and
+              julia_semver.match(version_spec, env_version, strict=strict) and
+              _check_path(env_path, check_exe)
+              ):
             return (env_version, env_path)
-    jlists = _collect_paths(locations=locations)
+    jlists = _collect_paths(locations=locations, no_dist=no_dist)
     paths = set(itertools.chain.from_iterable(jlists))
     maxv = julia_semver.version("0.0.0")
     best = (None, None)
@@ -97,7 +116,8 @@ def _find_version(version_spec=None, check_exe=False, strict=False, env_var=None
     return best
 
 
-def find(version_spec=None, check_exe=False, find_all=False, strict=False, env_var=None):
+def find(version_spec=None, check_exe=False, find_all=False, strict=False, env_var=None,
+         no_dist=True):
     """
     Search for and return the path to a Julia executable.
 
@@ -115,13 +135,16 @@ def find(version_spec=None, check_exe=False, find_all=False, strict=False, env_v
     find_all : If `False` skip the locations that are slower to search. If no other exectuables
         are found, the slower locations may be searched anyway. The only slow location is the
         jill-installed location.
+    no_dist: bool if `True` then a distribution-installed Julia, i.e. /usr/bin/julia under linux,
+        will be excluded from the search. Default is `True`. These julia installations are usually
+        broken and should almost always be avoided.
     """
     locations = _default_locations()
     if find_all is False: # Finding jill-installed julia versions is a bit slow
         locations['jill'] = False
     _, path = _find_version(
         version_spec=version_spec, check_exe=check_exe, strict=strict,
-        env_var=env_var, locations=locations
+        env_var=env_var, locations=locations, no_dist=no_dist
     )
     if path is not None:
         return path
@@ -136,7 +159,9 @@ def find(version_spec=None, check_exe=False, find_all=False, strict=False, env_v
 
 def find_or_install(version_spec=None, check_exe=False, find_all=False, strict=False,
                     answer_yes=False, post_question_hook=None,
-                    env_var=None): # , install_root=None):
+                    env_var=None,
+                    no_dist=True
+                    ): # , install_root=None):
     """
     Search for and return the path to a Julia executable or install one if none is found.
 
@@ -150,7 +175,8 @@ def find_or_install(version_spec=None, check_exe=False, find_all=False, strict=F
         than waiting till after the download. Default: None
     """
     path = find(
-        version_spec=version_spec, check_exe=check_exe, find_all=find_all, strict=strict, env_var=env_var
+        version_spec=version_spec, check_exe=check_exe, find_all=find_all, strict=strict, env_var=env_var,
+        no_dist=no_dist
     )
     if path is not None:
         return path
