@@ -2,11 +2,11 @@ import subprocess
 import shutil
 import json
 import os
+import warnings
 
 
-def _is_juliaup_locked(exe=None):
-    if exe is None:
-        exe = shutil.which("juliaup")
+def _is_juliaup_locked(exe):
+    assert exe is not None
     with subprocess.Popen(
         [exe, "status"], stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, encoding='utf8'
     ) as process:
@@ -18,7 +18,8 @@ def _is_juliaup_locked(exe=None):
                 return False
 
 
-def _check_is_juliaup_locked(exe=None):
+def _check_is_juliaup_locked(exe):
+    assert exe is not None
     if _is_juliaup_locked(exe):
         raise Exception(f"{exe} is locked. Try again later")
 
@@ -41,18 +42,12 @@ def _is_juliaup_executable(exe):
     return len(words) == 2 and words[0] == "Juliaup"
 
 
-def _check_is_juliaup_exectuable(exe):
+def _get_juliaup_config():
+    exe = shutil.which("juliaup")
     if exe is None:
-        raise FileNotFoundError("No juliaup executable found")
+        return None
     if not _is_juliaup_executable(exe):
-        raise ValueError(f"File {exe} is not a juliaup exectuable")
-    return exe
-
-
-def _get_juliaup_config(exe=None):
-    if exe is None:
-        exe = shutil.which("juliaup")
-    if exe is None:
+        warnings.warn(f"{exe} is not a valid juliaup executable", RuntimeWarning)
         return None
     _check_is_juliaup_locked(exe)
     payload = subprocess.run(
