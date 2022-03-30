@@ -1,4 +1,4 @@
-import urllib
+import urllib.request
 import json
 import julia_semver
 from . import _jill
