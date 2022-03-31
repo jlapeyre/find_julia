@@ -1,4 +1,4 @@
-__version__ = "0.2.6"
+__version__ = "0.2.7"
 
 """
 Search the file system for the path to a Julia executable or install Julia if none is found.
