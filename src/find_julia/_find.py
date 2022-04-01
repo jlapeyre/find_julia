@@ -35,7 +35,14 @@ def _check_path(path, check_exe=True):
 
 
 def _to_semver(versions_paths):
-    return [(julia_semver.version(v), p) for (v, p) in versions_paths]
+    semver_list = [(julia_semver.version(v), p) for (v, p) in versions_paths if v is not None]
+    if len(semver_list) == len(versions_paths):
+        return semver_list
+    for (v, p) in versions_paths: # slower, less common branch
+        if v is None:
+            print(f"Skipping path '{p}', unable to get julia version.")
+    return semver_list
+
 
 def _default_locations(default=True):
     return {'jill': default, 'juliaup': default, 'which': default, 'env': default}
@@ -52,9 +59,12 @@ def _collect_paths(locations, no_dist=True):
             print(f"Excluding julia found on PATH: {wpath}. Distribution-installations are usually broken.")
         # Exclude ~/.juliaup/bin/julia . It actually links to julialauncher. This program
         # is not really julia. Eg, if DEPOT_PATH[1] has been changed, julialauncher will error.
-        elif wpath is not None and wpath.find("juliaup") < 0: # juliaup is not in the path name
-            paths_which = _to_semver(julia_version.to_version_path_list([wpath]))
-            all_paths.append(paths_which)
+        elif wpath is not None:
+            if os.path.realpath(wpath).endswith("julialauncher"):
+                print("Excluding symlink from 'julialauncher' to 'julia'.")
+            else:
+                paths_which = _to_semver(julia_version.to_version_path_list([wpath]))
+                all_paths.append(paths_which)
     if locations['jill']:
         paths_jill = _to_semver(_jill.version_path_list())
         all_paths.append(paths_jill)

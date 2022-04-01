@@ -12,9 +12,12 @@ def julia_version(exe, slow=False):
     slow - If `True` then get the variable `VERSION` from the julia runtime.
        If `False` then use the command line switch `--version` which is faster.
     """
-    words = subprocess.run(
-        [exe, '-O0', '--startup-file=no', '--history-file=no', '--version'], check=True, capture_output=True, encoding='utf8'
-    ).stdout.strip().split()
+    try:
+        words = subprocess.run(
+            [exe, '-O0', '--startup-file=no', '--history-file=no', '--version'], check=True, capture_output=True, encoding='utf8'
+        ).stdout.strip().split()
+    except:
+        return None
     if len(words) != 3 and words[0] != "julia" and words[1] != "version":
         raise Exception(f"{exe} is not a julia exectuable")
     version = words[2]
