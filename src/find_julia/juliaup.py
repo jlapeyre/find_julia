@@ -42,6 +42,13 @@ def _is_juliaup_executable(exe):
     return len(words) == 2 and words[0] == "Juliaup"
 
 
+def reset_env_var(var_name, old_val):
+    if old_val:
+        os.environ[var_name] = old_val
+    elif os.getenv(var_name):
+        del os.environ[var_name]
+
+
 def _get_juliaup_config():
     exe = shutil.which("juliaup")
     if exe is None:
@@ -54,6 +61,17 @@ def _get_juliaup_config():
         [exe, "api", "getconfig1"], check=True, capture_output=True, encoding='utf8'
     ).stdout.strip()
     juliaup_config = json.loads(payload)
+    if juliaup_config["DefaultChannel"] is not None:
+        return juliaup_config
+
+    old_julia_depot_path = os.getenv("JULIA_DEPOT_PATH") # Maybe juliaup is looking in the wrong depot.
+    # Follow code in initdefs.jl here.
+    os.environ["JULIA_DEPOT_PATH"] = os.path.join(os.path.expanduser("~"), ".julia")
+    payload = subprocess.run(
+        [exe, "api", "getconfig1"], check=True, capture_output=True, encoding='utf8'
+    ).stdout.strip()
+    juliaup_config = json.loads(payload)
+    reset_env_var("JULIA_DEPOT_PATH", old_julia_depot_path)
     return juliaup_config
 
 

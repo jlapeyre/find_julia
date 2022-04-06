@@ -47,6 +47,7 @@ def _to_semver(versions_paths):
 def _default_locations(default=True):
     return {'jill': default, 'juliaup': default, 'which': default, 'env': default}
 
+
 def _collect_paths(locations, no_dist=True):
     all_paths = []
     # Finding juliaup versions is fast because they are cached in the filesystem.
@@ -61,7 +62,8 @@ def _collect_paths(locations, no_dist=True):
         # is not really julia. Eg, if DEPOT_PATH[1] has been changed, julialauncher will error.
         elif wpath is not None:
             if os.path.realpath(wpath).endswith("julialauncher"):
-                print("Excluding symlink from 'julialauncher' to 'julia'.")
+                pass
+                # Log this instead? print("Excluding symlink from 'julialauncher' to 'julia'.")
             else:
                 paths_which = _to_semver(julia_version.to_version_path_list([wpath]))
                 all_paths.append(paths_which)
